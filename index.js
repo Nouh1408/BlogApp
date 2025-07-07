@@ -45,6 +45,24 @@ app.post("/auth/register", (req,res,next)=>{
     
 })
 
+app.post("/auth/login",(req,res,next)=>{
+    const {email, password} = req.body
+    console.log({email,password});
+    
+    let query = `SELECT *  FROM users where email = ?`
+    dbconnection.execute(query, [email], (err,result)=>{
+        if(err){
+            return res.status(500).json({message:"server error", success:false})
+        }
+        //fail case
+        if(result.length==0 || password!=result[0]["password"]){
+            return res.status(401).json({message:"invalid", success:true})
+        }
+        result[0].password=null
+        return res.status(200).json({message:"login success", success:true,data:result[0]})
+    })
+})
+
 
 
 
