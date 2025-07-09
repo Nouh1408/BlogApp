@@ -91,6 +91,36 @@ app.get("/user/:id", (req, res, next) => {
           .json({ message: "user found", success: true, data:result[0]});
   });
 });
+//u[date]
+app.put('/user/:id', (req,res)=>{
+    const {id} = req.params
+    const {firstName, lastName, email, password, dob} = req.body //what data to be updated
+    let query = 'SELECT * FROM users where id =?'
+    
+    dbconnection.execute(query, [id] ,(err,result)=>{
+        if(err){
+            return res.status(200).json({message:"server error", success:false})
+        }
+        if(result.length ==0){
+            return res.status(404).json({message:"user not found",success:false})
+        }
+        query = 'UPDATE users SET firstName = ?,lastName = ?,email = ?,password = ?,dob = ? WHERE id =?'
+
+        dbconnection.execute(query, [
+            firstName ?? result[0].firstName,
+            lastName??result[0].lastName,
+             email?? result[0].email,
+             password?? result[0].password,
+             dob?? result[0].dob,
+             id,
+            ],(err,result)=>{
+            if(err){
+                res.status(500).json({message:"sserver errror", success:false})
+            }
+            return res.status(200).json({message:"user updated success", success:true})
+        })
+    })
+})
 
 app.listen(port, () => {
   console.log("====================================");
