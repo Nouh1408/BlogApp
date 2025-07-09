@@ -132,6 +132,21 @@ app.delete("/user/:id", (req,res)=>{
         return res.status(200).json({message:"deleted", success:true})
     })
 })
+//search
+app.get('/user/search',(req,res)=>{
+  //data sent in params ==> must be sent like in id 
+  // body,
+  //headers
+  // query
+  const {name} = req.query //--> object
+  let query = 'SELECT * FROM users WHERE firstname = ? OR lastname =?'
+  dbconnection.execute(query, [name, name], (err,result)=>{
+    if(err){
+      return res.status(500).json({message:"server error", success:false})
+    }
+    return res.status(200).json({message:"done", success:true, data:result})
+  })
+} )
 
 app.listen(port, () => {
   console.log("====================================");
