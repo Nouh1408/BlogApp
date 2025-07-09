@@ -121,6 +121,17 @@ app.put('/user/:id', (req,res)=>{
         })
     })
 })
+app.delete("/user/:id", (req,res)=>{
+    const { id } = req.params
+    let query ="UPDATE users set deleted = true where id = ?"
+    dbconnection.execute(query, [id], (err,result)=>{
+        if(err){
+            return res.status(500).json({message:"server error", success:false})
+        }
+        if(result)
+        return res.status(200).json({message:"deleted", success:true})
+    })
+})
 
 app.listen(port, () => {
   console.log("====================================");
