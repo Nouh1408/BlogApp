@@ -14,7 +14,7 @@ dbconnection.connect((err) => {
   if (err) {
     console.log("Failed to connect to DB", err.message);
   } else {
-    console.log("Logged to DB");
+    console.log("Logged to DB",);
   }
 });
 //authentication --> Registeration,Login, forgetPassw
@@ -62,7 +62,7 @@ app.post("/auth/login", (req, res, next) => {
     if (err) {
       return res.status(500).json({ message: "server error", success: false });
     }
-    //fail case
+    //fail case 
     if (result.length == 0 || password != result[0]["password"]) {
       return res.status(401).json({ message: "invalid", success: true });
     }
@@ -72,6 +72,24 @@ app.post("/auth/login", (req, res, next) => {
       .json({ message: "login success", success: true, data: result[0] });
   });
 });
+/**
+ * the get user search moved above get id because on postman they match both are get both /user.
+ * the reqest user/id read the search as id
+ */
+app.get('/user/search',(req,res)=>{ 
+  //data sent in params ==> must be sent like in id 
+  // body,
+  //headers
+  // query
+  const {name} = req.query //--> object
+  let query = 'SELECT * FROM users WHERE firstname LIKE ? OR lastname LIKE ?'
+  dbconnection.execute(query, [`%${name}%`, `%${name}%`], (err,result)=>{
+    if(err){
+      return res.status(500).json({message:"server error", success:false})
+    }
+    return res.status(200).json({message:"done", success:true, data:result})
+  })
+} )
 app.get("/user/:id", (req, res, next) => {
     let {id} = req.params
   let query = "SELECT email, dob, CONCAT(firstName,' ',lastName) AS fullName, CONVERT(DATEDIFF(now() , dob)/365, INT) AS age FROM users WHERE id = ?";
@@ -133,20 +151,7 @@ app.delete("/user/:id", (req,res)=>{
     })
 })
 //search
-app.get('/user/search',(req,res)=>{
-  //data sent in params ==> must be sent like in id 
-  // body,
-  //headers
-  // query
-  const {name} = req.query //--> object
-  let query = 'SELECT * FROM users WHERE firstname = ? OR lastname =?'
-  dbconnection.execute(query, [name, name], (err,result)=>{
-    if(err){
-      return res.status(500).json({message:"server error", success:false})
-    }
-    return res.status(200).json({message:"done", success:true, data:result})
-  })
-} )
+
 
 app.listen(port, () => {
   console.log("====================================");
