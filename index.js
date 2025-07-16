@@ -152,7 +152,25 @@ app.delete("/user/:id", (req,res)=>{
 })
 //search
 
-
+//add blog
+app.post("/blog",async (req,res,next)=>{
+  try {
+    const {title,content, userID} = req.body
+  let query  ="SELECT * FROM users WHERE ID = ?"
+  //rollback and promise method
+  let [result] = await dbconnection.promise().execute(query, [userID], )
+  if(result.length ==0){
+    return res.status(404).json({message:"user not found", success:false})
+  }
+  query = 'INSERT INTO blogs (title,content, userID) VALUES (?,?,?)';
+  [result] = await dbconnection.promise().execute(query, [title, content, userID])
+  return res.status(201).json({message:"blog created", success:true, data:{insertId:result.insertId}})
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+})
 app.listen(port, () => {
   console.log("====================================");
   console.log("Application is running on port ", port);
